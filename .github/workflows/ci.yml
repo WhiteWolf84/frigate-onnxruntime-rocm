@@ -30,6 +30,5 @@ jobs:
           file: Dockerfile.migraphx
           push: true
           platforms: linux/amd64
-          target: frigate
           tags: ${{ steps.setup.outputs.image-name }}-amd64
           cache-from: type=registry,ref=${{ steps.setup.outputs.cache-name }}-amd64
