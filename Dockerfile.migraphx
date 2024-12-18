@@ -1,4 +1,4 @@
-FROM debian:12 AS stage1
+FROM ubuntu:focal
 
 ARG ROCM_VERSION=5.7
 ARG AMDGPU_VERSION=5.7
