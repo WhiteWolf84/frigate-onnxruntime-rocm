@@ -1,4 +1,6 @@
-FROM debian:12 as rocm
+FROM debian:12 AS rocm
+
+ARG ROCM=6.3.1
 
 # install base deps
 RUN apt-get -qq update \
@@ -13,18 +15,15 @@ RUN apt-get -qq update \
     software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-# install necessary cmake version
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.26.5/cmake-3.26.5.tar.gz && \
-    tar -zxvf cmake-3.26.5.tar.gz && \
-    cd cmake-3.26.5 && \
-    ./bootstrap && make && make install
-
 # install migraphx and rocm
 RUN apt update && \
-    wget https://repo.radeon.com/amdgpu-install/6.3.1/ubuntu/jammy/amdgpu-install_6.3.60301-1_all.deb && \
+    wget https://repo.radeon.com/amdgpu-install/$ROCM/ubuntu/jammy/amdgpu-install_6.3.60301-1_all.deb && \
     apt install -y ./amdgpu-install_6.3.60301-1_all.deb && \
     apt update && \
     apt install -y rocm
 
-# create softlink
-RUN ln -s /opt/rocm* /opt/rocm
+RUN mkdir -p /opt/rocm-dist/opt/rocm-$ROCM/lib && \
+    cd /opt/rocm-$ROCM/lib && cp -dpr libMIOpen*.so* libamd*.so* libhip*.so* libhsa*.so* libmigraphx*.so* librocm*.so* librocblas*.so* libroctracer*.so* librocfft*.so* /opt/rocm-dist/opt/rocm-$ROCM/lib/
+
+FROM scratch AS builder
+COPY --from=rocm /opt/rocm-dist/ /opt/rocm-dist/
