@@ -1,5 +1,21 @@
-FROM crzynik/rocm-builder AS py311-wheels
+FROM crzynik/rocm-builder AS rocm
+
+FROM ubuntu:jammy AS py311-wheel
+
+COPY --from=rocm /opt/rocm-dist /
 ARG DEBIAN_FRONTEND=noninteractive
+
+# create softlink
+RUN ln -s /opt/rocm* /opt/rocm
+
+RUN apt update && \
+    apt install git tar wget
+
+# install necessary cmake version
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.26.5/cmake-3.26.5.tar.gz && \
+    tar -zxvf cmake-3.26.5.tar.gz && \
+    cd cmake-3.26.5 && \
+    ./bootstrap && make && make install
 
 RUN add-apt-repository ppa:deadsnakes/ppa \
     && apt-get -qq update \
