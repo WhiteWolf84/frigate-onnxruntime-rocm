@@ -1,36 +1,4 @@
-FROM ubuntu:jammy as rocm
-
-# install base deps
-RUN apt-get -qq update \
-    && apt-get -qq install -y \
-    apt-transport-https \
-    gnupg \
-    wget \
-    libssl-dev \
-    && apt-get -qq update \
-    && apt-get -qq install -y \
-    build-essential git \
-    software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
-
-# install necessary cmake version
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.26.5/cmake-3.26.5.tar.gz && \
-    tar -zxvf cmake-3.26.5.tar.gz && \
-    cd cmake-3.26.5 && \
-    ./bootstrap && make && make install
-    
-
-# install migraphx and rocm
-RUN apt update && \
-    wget https://repo.radeon.com/amdgpu-install/6.3.1/ubuntu/jammy/amdgpu-install_6.3.60301-1_all.deb && \
-    apt install -y ./amdgpu-install_6.3.60301-1_all.deb && \
-    apt update && \
-    apt install -y rocm
-
-# create softlink
-RUN ln -s /opt/rocm* /opt/rocm
-
-FROM rocm as py311-wheels
+FROM crzynik/rocm-builder AS py311-wheels
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN add-apt-repository ppa:deadsnakes/ppa \
