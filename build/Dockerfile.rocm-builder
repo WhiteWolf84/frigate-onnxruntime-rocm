@@ -22,8 +22,10 @@ RUN apt update && \
     apt update && \
     apt install -y rocm
 
-RUN mkdir -p /opt/rocm-dist/opt/rocm-$ROCM/lib && \
-    cd /opt/rocm-$ROCM/lib && cp -dpr libMIOpen*.so* libamd*.so* libhip*.so* libhsa*.so* libmigraphx*.so* librocm*.so* librocblas*.so* libroctracer*.so* librocfft*.so* /opt/rocm-dist/opt/rocm-$ROCM/lib/
+RUN mkdir -p /opt/rocm-dist/opt/rocm-$ROCM/amdgpu && \
+    cp -dpr /opt/amdgpu/* /opt/rocm-dist/opt/rocm-$ROCM/amdgpu && \
+    mkdir -p /opt/rocm-dist/opt/rocm-$ROCM/lib && \
+    cd /opt/rocm-$ROCM/lib && cp -dpr libMIOpen*.so* libamd*.so* libhip*.so* libhsa*.so* libmigraphx*.so* librocm*.so* librocblas*.so* libroctracer*.so* librocfft*.so* cmake/* /opt/rocm-dist/opt/rocm-$ROCM/lib/
 
 FROM scratch AS builder
 COPY --from=rocm /opt/rocm-dist/ /opt/rocm-dist/
