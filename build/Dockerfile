@@ -1,6 +1,6 @@
 FROM crzynik/rocm-builder AS rocm
 
-FROM ubuntu:jammy AS py311-wheel
+FROM ubuntu:jammy AS py311-wheels
 
 COPY --from=rocm /opt/rocm-dist /
 ARG DEBIAN_FRONTEND=noninteractive
@@ -8,8 +8,18 @@ ARG DEBIAN_FRONTEND=noninteractive
 # create softlink
 RUN ln -s /opt/rocm* /opt/rocm
 
-RUN apt update && \
-    apt install git tar wget
+# install base deps
+RUN apt-get -qq update \
+    && apt-get -qq install -y \
+    apt-transport-https \
+    gnupg \
+    wget \
+    libssl-dev \
+    && apt-get -qq update \
+    && apt-get -qq install -y \
+    build-essential git \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
 
 # install necessary cmake version
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.26.5/cmake-3.26.5.tar.gz && \
